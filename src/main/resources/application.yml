@@ -1,8 +1,22 @@
-#
-# application.yml — главный конфигурационный файл Spring Boot.
+server:
+  port: 9090
 
-Что нужно сделать:
-  - Указать настройки подключения к базе данных.
-  - Указать порт приложения.
-  - Настроить параметры безопасности и JWT.
-  - Включить Swagger UI.
+spring:
+  application:
+    name: bank-rest
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://127.0.0.1:5432/bank-rest}
+    username: ${SPRING_DATASOURCE_USERNAME:mira}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
+
+  jpa:
+    database: postgresql
+    hibernate:
+      ddl-auto: validate
+
+  liquibase:
+    enabled: true
+    driver-class-name: org.postgresql.Driver
+    change-log: classpath:db/changelog/db.changelog-master.yaml

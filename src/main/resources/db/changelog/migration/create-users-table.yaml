@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-users-table
+      author: mira
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  type: BIGINT
+                  name: id
+                  constraints:
+                    primaryKey: true
+              - column:
+                  type: varchar(225)
+                  name: email
+                  constraints:
+                    unique: true
+              - column:
+                  type: varchar(225)
+                  name: password
+              - column:
+                  type: varchar(150)
+                  name: firstname
+              - column:
+                  type: varchar(150)
+                  name: lastname
+              - column:
+                  type: varchar(150)
+                  name: patronymic
+              - column:
+                  type: varchar(100)
+                  name: role
