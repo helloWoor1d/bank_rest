@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-sequence
+      author: mira
+      changes:
+        - createSequence:
+            schemaName: public
+            sequenceName: users_id_seq
+            startValue: 1
+            minValue: 1
+            incrementBy: 10
+            cacheSize: 2

@@ -1,6 +1,5 @@
 package com.example.bankcards.config.security;
 
-import com.example.bankcards.security.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -9,7 +8,6 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
@@ -29,27 +27,26 @@ public class SecurityConfig {
         http
                 .securityMatcher(serverConfigurer.getEndpointsMatcher())
                         .with(serverConfigurer, (authServer) -> authServer.oidc(Customizer.withDefaults()))
+                .authorizeHttpRequests(authorize ->
+                        authorize.anyRequest().authenticated())
+
                 .exceptionHandling(ex -> ex.defaultAuthenticationEntryPointFor(
                         new LoginUrlAuthenticationEntryPoint("/login"),
-                        new MediaTypeRequestMatcher(MediaType.TEXT_XML)
+                        new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
                 ));
         http.csrf(AbstractHttpConfigurer::disable);
         return http.build();
     }
 
     @Bean
-    @Order(2)
+    @Order(3)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(r ->
-                        r.anyRequest().permitAll())
+                .authorizeHttpRequests(authorize ->
+                        authorize.anyRequest().permitAll())
+                .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(Customizer.withDefaults());
         return http.build();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return new CustomUserDetailsService();
     }
 
     @Bean

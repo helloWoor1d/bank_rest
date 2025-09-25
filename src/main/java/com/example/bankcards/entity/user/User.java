@@ -6,6 +6,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,8 +26,10 @@ import lombok.ToString;
 @Table(name = "users")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_gen")
+    @SequenceGenerator(name = "seq_gen", sequenceName = "users_id_seq", allocationSize = 10)
     private Long id;
+
     private String email;
     private String password;
     private String firstname;
@@ -34,5 +37,9 @@ public class User {
     private String patronymic;
 
     @Enumerated(value = EnumType.STRING)
-    private UserRole role;
+    @Builder.Default
+    private UserRole role = UserRole.USER;
+
+    @Builder.Default
+    private Boolean blocked = Boolean.FALSE;
 }

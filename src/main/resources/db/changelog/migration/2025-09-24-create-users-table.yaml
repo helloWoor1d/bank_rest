@@ -16,9 +16,12 @@ databaseChangeLog:
                   name: email
                   constraints:
                     unique: true
+                    nullable: false
               - column:
                   type: varchar(225)
                   name: password
+                  constraints:
+                    nullable: false
               - column:
                   type: varchar(150)
                   name: firstname
@@ -31,3 +34,10 @@ databaseChangeLog:
               - column:
                   type: varchar(100)
                   name: role
+                  constraints:
+                    nullable: false
+              - column:
+                  type: boolean
+                  name: blocked
+                  constraints:
+                    nullable: false

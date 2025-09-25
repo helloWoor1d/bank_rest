@@ -46,14 +46,4 @@ public class SecurityJwkConfig {
         }
         return keyPair;
     }
-
-    @Bean
-    public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
-        return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
-    }
-
-    @Bean
-    public JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
-        return new NimbusJwtEncoder(jwkSource);
-    }
 }

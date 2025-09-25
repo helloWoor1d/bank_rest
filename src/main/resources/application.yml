@@ -16,6 +16,13 @@ spring:
     hibernate:
       ddl-auto: validate
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${SPRING_SECURITY_ISSUER_URI:http://localhost:9090}
+          jwk-set-uri: ${SPRING_SECURITY_JWK_SET_URI:http://localhost:9090/oauth2/jwks}
+
   liquibase:
     enabled: true
     driver-class-name: org.postgresql.Driver
