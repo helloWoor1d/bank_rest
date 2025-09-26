@@ -1,8 +1,11 @@
 package com.example.bankcards.controller.user;
 
+import com.example.bankcards.dto.mapper.UserMapper;
+import com.example.bankcards.dto.user.UserDto;
 import com.example.bankcards.dto.user.UserUpdateRequest;
 import com.example.bankcards.entity.user.User;
 import com.example.bankcards.service.user.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,27 +24,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class PrivateUserController {
     private final UserService userService;
+    private final UserMapper userMapper;
     
     @GetMapping
-    public ResponseEntity<User> getUser(@AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<UserDto> getUser(@AuthenticationPrincipal Jwt jwt) {
         Long userId = Long.parseLong(jwt.getSubject());
-        return ResponseEntity.ok(userService.getUser(userId));
+        return ResponseEntity.ok(userMapper.toDto(
+                userService.getUser(userId)));
     }
 
     @PostMapping
-    public ResponseEntity<User> updateUser(@AuthenticationPrincipal Jwt jwt,
-                                           @RequestBody UserUpdateRequest updateRequest) {
+    public ResponseEntity<UserDto> updateUser(@AuthenticationPrincipal Jwt jwt,
+                                              @Valid @RequestBody UserUpdateRequest updateRequest) {
         Long userId = Long.parseLong(jwt.getSubject());
-        User user = User.builder()
-                .id(userId)
-                .email(updateRequest.getEmail())
-                .password(updateRequest.getPassword())
-                .firstname(updateRequest.getFirstname())
-                .lastname(updateRequest.getLastname())
-                .patronymic(updateRequest.getPatronymic())
-                .build();
-        User resp = userService.updateUser(user);
-        return ResponseEntity.ok(resp);
+        User user = userMapper.toUser(updateRequest, userId);
+        return ResponseEntity.ok(userMapper.toDto(
+                userService.updateUser(user)));
     }
 
     @DeleteMapping

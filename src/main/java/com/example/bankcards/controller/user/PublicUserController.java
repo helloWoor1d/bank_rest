@@ -1,5 +1,7 @@
 package com.example.bankcards.controller.user;
 
+import com.example.bankcards.dto.mapper.UserMapper;
+import com.example.bankcards.dto.user.UserDto;
 import com.example.bankcards.dto.user.UserRegisterRequest;
 import com.example.bankcards.entity.user.User;
 import com.example.bankcards.service.user.UserService;
@@ -18,14 +20,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/users")
 public class PublicUserController {
     private final UserService userService;
+    private final UserMapper userMapper;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<User> createUser(@Valid @RequestBody UserRegisterRequest createRequest) {
-        return ResponseEntity.ok(userService.createUser(
-                User.builder()
-                        .email(createRequest.getEmail())
-                        .password(createRequest.getPassword())
-                        .role(createRequest.getRole()).build()));
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserRegisterRequest createRequest) {
+        User user = userService.createUser(userMapper.toUser(createRequest));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(userMapper.toDto(user));
     }
 }
