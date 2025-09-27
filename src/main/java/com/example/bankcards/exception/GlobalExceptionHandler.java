@@ -1,5 +1,6 @@
 package com.example.bankcards.exception;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -13,6 +14,13 @@ public class GlobalExceptionHandler {
         ProblemDetail problem = ProblemDetail
                 .forStatusAndDetail(HttpStatus.FORBIDDEN, e.getMessage());
         problem.setTitle("Access Denied");
+        return problem;
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ProblemDetail handleEntityNotFoundException(EntityNotFoundException e) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
+        problem.setTitle("Not Found");
         return problem;
     }
 

@@ -23,7 +23,7 @@ public class CardService {
     private final CardRepository cardRepository;
 
     public Card createCard(Card card, Long adminId) {
-        card.setNumber(NumberGenerator.generateNumber());  // toDo: подумать над повторной попыткой генерации номера в случае исключения
+        card.setNumber(NumberGenerator.generateNumber());   // toDo: подумать над повторной попыткой генерации номера в случае исключения
         card.setExpiryDate(LocalDate.now().plusYears(3));
         card.setBalance(BigDecimal.valueOf(0.0));
         card.setStatus(CardStatus.ACTIVE);

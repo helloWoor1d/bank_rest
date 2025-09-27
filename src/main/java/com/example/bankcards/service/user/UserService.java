@@ -6,6 +6,7 @@ import com.example.bankcards.repository.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.Named;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,19 +21,21 @@ public class UserService {
 
     public User createUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        log.info("Create user with id {}", user.getId());
-        return userRepository.save(user);
+        User saved = userRepository.save(user);
+        log.info("Create user with id {}", saved.getId());
+        return saved;
     }
 
     @Transactional(readOnly = true)
     public User getUserByEmail(String email) {
+        log.debug("Get user by email");
         return userRepository.findUserByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("User with email " + email + " not found"));
     }
 
     @Transactional(readOnly = true)
-    public User getUser(Long userId) {
-        log.debug("Get user {}", userId);
+    public User getUserForView(Long userId) {
+        log.debug("Get user {} for view", userId);
         User user = getUserById(userId);
         if (user.getBlocked())
             throw new AccessDeniedException("User is blocked");
@@ -40,7 +43,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User getUserByAdmin(Long userId, Long adminId) {
+    public User getUserForViewByAdmin(Long userId, Long adminId) {
         log.debug("Get user {} by admin {}", userId, adminId);
         return getUserById(userId);
     }
@@ -91,7 +94,9 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    private User getUserById(Long id) {
+    @Named("getUserById")
+    public User getUserById(Long id) {
+        log.debug("Get user by id {}", id);
         return userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User with id " + id + " not found"));
     }

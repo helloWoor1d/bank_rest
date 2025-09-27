@@ -1,10 +1,12 @@
 package com.example.bankcards.controller.card;
 
+import com.example.bankcards.dto.card.CardView;
 import com.example.bankcards.dto.card.CreateCardRequest;
 import com.example.bankcards.dto.mapper.CardMapper;
 import com.example.bankcards.entity.card.Card;
 import com.example.bankcards.entity.card.CardFilter;
 import com.example.bankcards.service.card.CardService;
+import jakarta.validation.Valid;
 import jakarta.validation.ValidationException;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -38,11 +40,12 @@ public class CardAdminController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Card> createCard(@RequestBody CreateCardRequest createRequest,
-                                           @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<CardView> createCard(@Valid @RequestBody CreateCardRequest createRequest,
+                                               @AuthenticationPrincipal Jwt jwt) {
         Long adminId = Long.parseLong(jwt.getSubject());
         Card card = cardMapper.toCard(createRequest);
-        return ResponseEntity.ok(cardService.createCard(card, adminId));
+        return ResponseEntity.ok(cardMapper.toCardView(
+                cardService.createCard(card, adminId)));
     }
 
     @DeleteMapping("/{cardId}")

@@ -26,7 +26,7 @@ public class AdminUserController {
     public ResponseEntity<UserDto> getUser(@PathVariable Long userId,
                                            @AuthenticationPrincipal Jwt jwt) {
         Long adminId = Long.parseLong(jwt.getSubject());
-        User user = userService.getUserByAdmin(userId, adminId);
+        User user = userService.getUserForViewByAdmin(userId, adminId);
         return ResponseEntity.ok(
                 userMapper.toDto(user));
     }

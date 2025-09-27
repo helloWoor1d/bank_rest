@@ -26,6 +26,7 @@ databaseChangeLog:
                   name: owner_id
                   type: BIGINT
                   constraints:
+                    nullable: false
                     foreignKeyName: fk-cards-owner-to-users
               - column:
                   name: status
@@ -34,7 +35,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: balance
-                  type: DOUBLE
+                  type: DECIMAL
                   constraints:
                     nullable: false
 

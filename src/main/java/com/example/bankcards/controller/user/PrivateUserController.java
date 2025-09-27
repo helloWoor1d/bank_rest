@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/users/my")
+@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class PrivateUserController {
     private final UserService userService;
@@ -30,7 +30,7 @@ public class PrivateUserController {
     public ResponseEntity<UserDto> getUser(@AuthenticationPrincipal Jwt jwt) {
         Long userId = Long.parseLong(jwt.getSubject());
         return ResponseEntity.ok(userMapper.toDto(
-                userService.getUser(userId)));
+                userService.getUserForView(userId)));
     }
 
     @PatchMapping

@@ -1,5 +1,5 @@
 server:
-  port: 9090
+  port: ${SERVER_PORT:9090}
 
 spring:
   application:
@@ -15,6 +15,7 @@ spring:
     database: postgresql
     hibernate:
       ddl-auto: validate
+    show-sql: true
 
   security:
     oauth2:
@@ -30,4 +31,4 @@ spring:
 
 logging:
   level:
-    bank_rest: debug
+    com.example.bankcards.*: debug

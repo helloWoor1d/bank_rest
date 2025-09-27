@@ -1,6 +1,7 @@
 package com.example.bankcards.dto.mapper;
 
 import com.example.bankcards.dto.user.UserDto;
+import com.example.bankcards.dto.user.UserForCard;
 import com.example.bankcards.dto.user.UserRegisterRequest;
 import com.example.bankcards.dto.user.UserUpdateRequest;
 import com.example.bankcards.entity.user.User;
@@ -23,4 +24,7 @@ public interface UserMapper {
     User toUser(UserUpdateRequest updateRequest, Long userId);
 
     UserDto toDto(User user);
+
+    @Mapping(target = "fullName", expression = "java(user.getFirstname() + \" \" + user.getLastname())")
+    UserForCard toUserForCard(User user);
 }

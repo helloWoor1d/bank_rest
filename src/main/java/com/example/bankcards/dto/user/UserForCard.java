@@ -1,6 +1,5 @@
-package com.example.bankcards.dto.card;
+package com.example.bankcards.dto.user;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +12,7 @@ import lombok.Setter;
 @Getter
 @Setter
 
-public class CreateCardRequest {
-    @NotNull
-    private Long ownerId;
+public class UserForCard {
+    private Long id;
+    private String fullName;
 }

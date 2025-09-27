@@ -23,7 +23,7 @@ public class ResourceServerConfig {
                 .authorizeHttpRequests(r -> r
                         .requestMatchers(HttpMethod.POST,"/api/v1/users").permitAll()
                         .requestMatchers("/api/v1/admin/users/**").hasRole(String.valueOf(UserRole.ADMIN))
-                        .requestMatchers("/api/v1/users/my").hasAnyRole(String.valueOf(UserRole.USER), String.valueOf(UserRole.ADMIN))
+                        .requestMatchers("/api/v1/users").hasAnyRole(String.valueOf(UserRole.USER), String.valueOf(UserRole.ADMIN))
                         .anyRequest().permitAll()
                 )
                 .csrf(AbstractHttpConfigurer::disable)
