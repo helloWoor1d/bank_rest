@@ -28,3 +28,6 @@ spring:
     driver-class-name: org.postgresql.Driver
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
+logging:
+  level:
+    bank_rest: debug

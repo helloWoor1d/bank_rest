@@ -5,16 +5,13 @@ import com.example.bankcards.dto.user.UserDto;
 import com.example.bankcards.entity.user.User;
 import com.example.bankcards.service.user.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
@@ -34,15 +31,15 @@ public class AdminUserController {
                 userMapper.toDto(user));
     }
 
-    @DeleteMapping("/{userId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void blockUser(@PathVariable Long userId,
-                          @AuthenticationPrincipal Jwt jwt) {
+    @PatchMapping("/{userId}/block")
+    public ResponseEntity<UserDto> blockUser(@PathVariable Long userId,
+                                             @AuthenticationPrincipal Jwt jwt) {
         Long adminId = Long.parseLong(jwt.getSubject());
-        userService.blockUser(userId, adminId);
+        User user = userService.blockUser(userId, adminId);
+        return ResponseEntity.ok(userMapper.toDto(user));
     }
 
-    @PostMapping("/{userId}")
+    @PatchMapping("/{userId}/unlock")
     public ResponseEntity<UserDto> unlockUser(@PathVariable Long userId,
                                               @AuthenticationPrincipal Jwt jwt) {
         Long adminId = Long.parseLong(jwt.getSubject());

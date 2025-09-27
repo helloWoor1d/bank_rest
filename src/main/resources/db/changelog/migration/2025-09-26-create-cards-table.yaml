@@ -1,0 +1,46 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-cards-table
+      author: mira
+      changes:
+        - createTable:
+            tableName: cards
+            schemaName: public
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: number
+                  type: VARCHAR(19)
+                  constraints:
+                    unique: true
+              - column:
+                  name: expiry_date
+                  type: DATE
+                  constraints:
+                    nullable: true
+              - column:
+                  name: owner_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk-cards-owner-to-users
+              - column:
+                  name: status
+                  type: VARCHAR(150)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: balance
+                  type: DOUBLE
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: cards
+            baseColumnNames: owner_id
+            constraintName: fk-cards-owner-to-users
+            referencedTableName: users
+            referencedColumnNames: id

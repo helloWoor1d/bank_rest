@@ -67,7 +67,7 @@ public class UserService {
         return userRepository.save(saved);
     }
 
-    public void blockUser(Long userId, Long blockerId) {
+    public User blockUser(Long userId, Long blockerId) {
         if (userId.equals(blockerId)) {
             throw new AccessDeniedException("User cannot block itself");
         }
@@ -76,12 +76,12 @@ public class UserService {
 
         log.info("Block user with id {} by admin {}", userId, blockerId);
         user.setBlocked(true);
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
     public User unlockUser(Long userId, Long blockerId) {
         if (userId.equals(blockerId)) {
-            throw new AccessDeniedException("User cannot unblock itself");
+            throw new AccessDeniedException("User cannot unlock itself");
         }
         User user = getUserById(userId);
         if (!user.getBlocked()) throw new AccessDeniedException("User is already unlocked");

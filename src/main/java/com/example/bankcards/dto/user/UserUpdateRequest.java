@@ -12,7 +12,7 @@ import lombok.Setter;
 @Getter
 @Setter
 
-public class UserUpdateRequest {
+public class UserUpdateRequest {        //toDo: подумать над валидацией
     private String email;
     private String password;
     private String firstname;
