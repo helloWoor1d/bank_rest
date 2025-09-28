@@ -8,12 +8,14 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -51,13 +53,17 @@ public class CardService {
 
     @Transactional(readOnly = true)
     public Page<Card> getCardsByStatus(Long adminId, CardFilter filter, Pageable pageable) {
+        Page<Long> cardIds;
         if (filter.equals(CardFilter.ALL)) {
-            log.debug("Get ALL cards by {}", adminId);
-            return cardRepository.findAll(pageable);
+            log.debug("Get ALL cards id by admin {}", adminId);
+            cardIds = cardRepository.getCardId(pageable);
         } else {
-            log.debug("Get {} cards by {}", filter, adminId);
-            return cardRepository.findAllByStatus(CardStatus.valueOf(filter.toString()), pageable);
+            log.debug("Get {} cards id by admin {}", filter, adminId);
+            cardIds = cardRepository.getCardIdByStatus(CardStatus.valueOf(filter.toString()), pageable);
         }
+        log.debug("Get {} cards by admin {}", filter, adminId);
+        List<Card> cards = cardRepository.findAllByIdIn(cardIds.getContent());
+        return new PageImpl<>(cards, pageable, cardIds.getTotalElements());
     }
 
     private Card findCardById(Long cardId) {

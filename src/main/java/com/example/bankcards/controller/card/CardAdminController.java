@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,10 +31,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("api/v1/admin/cards")
 @PreAuthorize("hasRole('ADMIN')")
+@EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
 public class CardAdminController {
     private final CardMapper cardMapper;
     private final CardService cardService;
@@ -57,34 +61,37 @@ public class CardAdminController {
     }
 
     @PatchMapping("/{cardId}/activate")
-    public ResponseEntity<Card> activateCard(@PathVariable Long cardId,
-                                             @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<CardView> activateCard(@PathVariable Long cardId,
+                                                 @AuthenticationPrincipal Jwt jwt) {
         Long adminId = Long.parseLong(jwt.getSubject());
         Card card = cardService.activateCard(cardId, true, adminId);
-        return ResponseEntity.ok(card);
+        return ResponseEntity.ok(
+                cardMapper.toCardView(card));
     }
 
     @PatchMapping("/{cardId}/deactivate")
-    public ResponseEntity<Card> deactivateCard(@PathVariable Long cardId,
-                                               @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<CardView> deactivateCard(@PathVariable Long cardId,
+                                                   @AuthenticationPrincipal Jwt jwt) {
         Long adminId = Long.parseLong(jwt.getSubject());
         Card card = cardService.activateCard(cardId, false, adminId);
-        return ResponseEntity.ok(card);
+        return ResponseEntity.ok(
+                cardMapper.toCardView(card));
     }
 
     @GetMapping
-    public Page<Card> getCards(@RequestParam(defaultValue = "ALL") String state,
-                               @Min(0) @Max(100) @RequestParam(defaultValue = "0") Integer page,
-                               @Min(0) @Max(100) @RequestParam(defaultValue = "10") Integer size,
-                               @AuthenticationPrincipal Jwt jwt) {
+    public Page<CardView> getCards(@RequestParam(defaultValue = "ALL") String state,
+                                   @Min(0) @Max(100) @RequestParam(defaultValue = "0") Integer page,
+                                   @Min(0) @Max(100) @RequestParam(defaultValue = "10") Integer size,
+                                   @AuthenticationPrincipal Jwt jwt) {
         try {
             CardFilter filter = CardFilter.valueOf(state.toUpperCase());
             Long adminId = Long.parseLong(jwt.getSubject());
             Pageable pageable = PageRequest.of(page, size);
 
-            return cardService.getCardsByStatus(adminId, filter, pageable);
+            Page<Card> cards = cardService.getCardsByStatus(adminId, filter, pageable);
+            return cards.map(cardMapper::toCardView);
         } catch (IllegalArgumentException ex) {
-            throw new ValidationException("Unknown state " + state);            //toDo: подумать над исключением + обработать его в handler-е
+            throw new ValidationException("Unknown state " + state);
         }
     }
 }
