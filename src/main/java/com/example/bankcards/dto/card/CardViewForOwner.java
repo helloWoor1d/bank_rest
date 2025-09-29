@@ -1,6 +1,5 @@
 package com.example.bankcards.dto.card;
 
-import com.example.bankcards.dto.user.UserForCard;
 import com.example.bankcards.entity.card.CardStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,11 +15,10 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 
-public class CardView {
+public class CardViewForOwner {
     private int id;
     private String number;
     private String expiryDate;
-    private UserForCard owner;
-    private BigDecimal balance;
     private CardStatus status;
+    private BigDecimal balance;
 }

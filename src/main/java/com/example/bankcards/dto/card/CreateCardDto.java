@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 
-public class CreateCardRequest {
+public class CreateCardDto {
     @NotNull
     private Long ownerId;
 }

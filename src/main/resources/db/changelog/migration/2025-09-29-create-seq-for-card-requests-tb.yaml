@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: create-seq-for-cards-tb
+      id: create-seq-for-card-requests-tb
       author: mira
       changes:
         - createSequence:
-            sequenceName: cards_id_seq
+            sequenceName: card_requests_id_seq
             schemaName: public
             startValue: 1
             minValue: 1

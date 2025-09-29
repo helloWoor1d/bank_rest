@@ -8,5 +8,5 @@ databaseChangeLog:
             sequenceName: users_id_seq
             startValue: 1
             minValue: 1
-            incrementBy: 10
+            incrementBy: 5
             cacheSize: 2

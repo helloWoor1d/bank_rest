@@ -1,0 +1,55 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-card-requests-tb
+      author: mira
+      changes:
+        - createTable:
+            tableName: card_requests
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  defaultValueSequenceNext: card_requests_id_seq
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: requester_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk-card-requests-requester_id-to-users-tb
+              - column:
+                  name: card_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk-card-requests-card_id-to-cards-tb
+              - column:
+                  name: request_type
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: request_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            constraintName: fk-card-requests-requester_id-to-users-tb
+            baseTableName: card_requests
+            baseColumnNames: requester_id
+            referencedTableName: users
+            referencedColumnNames: id
+
+        - addForeignKeyConstraint:
+            constraintName: fk-card-requests-card_id-to-cards-tb
+            baseTableName: card_requests
+            baseColumnNames: card_id
+            referencedTableName: cards
+            referencedColumnNames: id

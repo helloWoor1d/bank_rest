@@ -9,6 +9,7 @@ databaseChangeLog:
               - column:
                   type: BIGINT
                   name: id
+                  defaultValueSequenceNext: users_id_seq
                   constraints:
                     primaryKey: true
               - column:

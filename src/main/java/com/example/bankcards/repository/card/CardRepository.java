@@ -23,4 +23,8 @@ public interface CardRepository extends JpaRepository<Card, Long> {
 
     @EntityGraph(attributePaths = "owner")
     List<Card> findAllByIdIn(List<Long> ids);
+
+    Page<Card> findAllByOwnerIdAndStatus(Long id, CardStatus status, Pageable pageable);
+
+    Page<Card> findAllByOwnerId(Long id, Pageable pageable);
 }

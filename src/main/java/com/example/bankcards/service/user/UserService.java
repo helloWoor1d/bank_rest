@@ -3,6 +3,7 @@ package com.example.bankcards.service.user;
 import com.example.bankcards.entity.user.User;
 import com.example.bankcards.exception.AccessDeniedException;
 import com.example.bankcards.repository.user.UserRepository;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EntityManager entityManager;
 
     public User createUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -94,10 +96,15 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    @Named("getUserById")
     public User getUserById(Long id) {
         log.debug("Get user by id {}", id);
         return userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User with id " + id + " not found"));
+    }
+
+    @Named("getUserReference")
+    public User getUserReference(Long userId) {
+        log.debug("Get user reference {}", userId);
+        return entityManager.getReference(User.class, userId);
     }
 }

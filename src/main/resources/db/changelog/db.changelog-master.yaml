@@ -1,9 +1,13 @@
 databaseChangeLog:
   - include:
+      file: db/changelog/migration/2025-09-24-create-seq-for-users-table.yaml
+  - include:
       file: db/changelog/migration/2025-09-24-create-users-table.yaml
   - include:
-      file: db/changelog/migration/2025-09-24-create-seq-for-users-table.yaml
+      file: db/changelog/migration/2025-09-26-create-seq-for-cards-table.yaml
   - include:
       file: db/changelog/migration/2025-09-26-create-cards-table.yaml
   - include:
-      file: db/changelog/migration/2025-09-26-create-seq-for-cards-table.yaml
+      file: db/changelog/migration/2025-09-29-create-seq-for-card-requests-tb.yaml
+  - include:
+      file: db/changelog/migration/2025-09-29-create-card-requests-tb.yaml

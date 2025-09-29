@@ -10,6 +10,7 @@ databaseChangeLog:
               - column:
                   name: id
                   type: BIGINT
+                  defaultValueSequenceNext: cards_id_seq
                   constraints:
                     primaryKey: true
               - column:

@@ -1,7 +1,7 @@
 package com.example.bankcards.controller.card;
 
-import com.example.bankcards.dto.card.CardView;
-import com.example.bankcards.dto.card.CreateCardRequest;
+import com.example.bankcards.dto.card.CardViewForAdmin;
+import com.example.bankcards.dto.card.CreateCardDto;
 import com.example.bankcards.dto.mapper.CardMapper;
 import com.example.bankcards.entity.card.Card;
 import com.example.bankcards.entity.card.CardFilter;
@@ -38,17 +38,18 @@ import static org.springframework.data.web.config.EnableSpringDataWebSupport.Pag
 @RequestMapping("api/v1/admin/cards")
 @PreAuthorize("hasRole('ADMIN')")
 @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
-public class CardAdminController {
-    private final CardMapper cardMapper;
+public class AdminCardController {
     private final CardService cardService;
+
+    private final CardMapper cardMapper;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<CardView> createCard(@Valid @RequestBody CreateCardRequest createRequest,
-                                               @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<CardViewForAdmin> createCard(@Valid @RequestBody CreateCardDto createRequest,
+                                                       @AuthenticationPrincipal Jwt jwt) {
         Long adminId = Long.parseLong(jwt.getSubject());
         Card card = cardMapper.toCard(createRequest);
-        return ResponseEntity.ok(cardMapper.toCardView(
+        return ResponseEntity.ok(cardMapper.toCardViewForAdmin(
                 cardService.createCard(card, adminId)));
     }
 
@@ -61,37 +62,37 @@ public class CardAdminController {
     }
 
     @PatchMapping("/{cardId}/activate")
-    public ResponseEntity<CardView> activateCard(@PathVariable Long cardId,
-                                                 @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<CardViewForAdmin> activateCard(@PathVariable Long cardId,
+                                                         @AuthenticationPrincipal Jwt jwt) {
         Long adminId = Long.parseLong(jwt.getSubject());
         Card card = cardService.activateCard(cardId, true, adminId);
         return ResponseEntity.ok(
-                cardMapper.toCardView(card));
+                cardMapper.toCardViewForAdmin(card));
     }
 
     @PatchMapping("/{cardId}/deactivate")
-    public ResponseEntity<CardView> deactivateCard(@PathVariable Long cardId,
-                                                   @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<CardViewForAdmin> deactivateCard(@PathVariable Long cardId,
+                                                           @AuthenticationPrincipal Jwt jwt) {
         Long adminId = Long.parseLong(jwt.getSubject());
         Card card = cardService.activateCard(cardId, false, adminId);
         return ResponseEntity.ok(
-                cardMapper.toCardView(card));
+                cardMapper.toCardViewForAdmin(card));
     }
 
     @GetMapping
-    public Page<CardView> getCards(@RequestParam(defaultValue = "ALL") String state,
-                                   @Min(0) @Max(100) @RequestParam(defaultValue = "0") Integer page,
-                                   @Min(0) @Max(100) @RequestParam(defaultValue = "10") Integer size,
-                                   @AuthenticationPrincipal Jwt jwt) {
+    public Page<CardViewForAdmin> getCards(@RequestParam(defaultValue = "ALL") String filter,
+                                           @Min(0) @Max(100) @RequestParam(defaultValue = "0") Integer page,
+                                           @Min(0) @Max(100) @RequestParam(defaultValue = "10") Integer size,
+                                           @AuthenticationPrincipal Jwt jwt) {
         try {
-            CardFilter filter = CardFilter.valueOf(state.toUpperCase());
+            CardFilter f = CardFilter.valueOf(filter.toUpperCase());
             Long adminId = Long.parseLong(jwt.getSubject());
             Pageable pageable = PageRequest.of(page, size);
 
-            Page<Card> cards = cardService.getCardsByStatus(adminId, filter, pageable);
-            return cards.map(cardMapper::toCardView);
+            Page<Card> cards = cardService.getCardsByStatus(adminId, f, pageable);
+            return cards.map(cardMapper::toCardViewForAdmin);
         } catch (IllegalArgumentException ex) {
-            throw new ValidationException("Unknown state " + state);
+            throw new ValidationException("Unknown state " + filter);
         }
     }
 }
