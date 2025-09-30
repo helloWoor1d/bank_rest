@@ -10,11 +10,17 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(AccessDeniedException.class)
-    public ProblemDetail handleAccessDeniedException(AccessDeniedException e) {
-        ProblemDetail problem = ProblemDetail
-                .forStatusAndDetail(HttpStatus.FORBIDDEN, e.getMessage());
-        problem.setTitle("Access Denied");
+    @ExceptionHandler(UserBlockedException.class)
+    public ProblemDetail handleUserBlockedException(UserBlockedException e) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, e.getMessage());
+        problem.setTitle("User blocked");
+        return problem;
+    }
+
+    @ExceptionHandler(BadOperationException.class)
+    public ProblemDetail handleBadOperationException(BadOperationException e) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+        problem.setTitle("Bad Request");
         return problem;
     }
 

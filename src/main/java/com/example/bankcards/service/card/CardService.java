@@ -4,7 +4,8 @@ import com.example.bankcards.entity.card.Card;
 import com.example.bankcards.entity.card.CardFilter;
 import com.example.bankcards.entity.card.CardStatus;
 import com.example.bankcards.entity.card.Transfer;
-import com.example.bankcards.exception.AccessDeniedException;
+import com.example.bankcards.exception.BadOperationException;
+import com.example.bankcards.exception.UserBlockedException;
 import com.example.bankcards.repository.card.CardRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -78,19 +79,21 @@ public class CardService {
     }
 
     public void makeTransfer(Transfer transfer) {
-        Card cardFrom = findCardById(transfer.getFrom());
-        Card cardTo = findCardById(transfer.getTo());
-        if (cardFrom.getStatus() != CardStatus.ACTIVE || cardTo.getStatus() != CardStatus.ACTIVE) {
-            throw new AccessDeniedException("Невозможно осуществить перевод, убедитесь что карты активны");
+        if (transfer.getUser().getBlocked()) {
+            throw new UserBlockedException("Переводы в настоящее время недоступны, дождитесь разблокировки аккаунта");
         }
-        if (cardFrom.getBalance().compareTo(transfer.getAmount()) < 0) {
-            throw new AccessDeniedException("Недостаточно средств для перевода");
+        if (transfer.getFrom().getStatus() != CardStatus.ACTIVE ||
+                transfer.getTo().getStatus() != CardStatus.ACTIVE) {
+            throw new BadOperationException("Невозможно осуществить перевод, убедитесь что карты активны");
+        }
+        if (transfer.getFrom().getBalance().compareTo(transfer.getAmount()) < 0) {
+            throw new BadOperationException("Недостаточно средств для перевода");
         }
         log.debug("Transfer from {} to {} by {}", transfer.getFrom(), transfer.getTo(), transfer.getUser());
-        cardFrom.setBalance(cardFrom.getBalance().subtract(transfer.getAmount()));
-        cardTo.setBalance(cardTo.getBalance().add(transfer.getAmount()));
-        cardRepository.save(cardFrom);
-        cardRepository.save(cardTo);
+        transfer.getFrom().setBalance(transfer.getFrom().getBalance().subtract(transfer.getAmount()));
+        transfer.getTo().setBalance(transfer.getTo().getBalance().add(transfer.getAmount()));
+        cardRepository.save(transfer.getFrom());
+        cardRepository.save(transfer.getTo());
     }
 
     @Named("findCardById")

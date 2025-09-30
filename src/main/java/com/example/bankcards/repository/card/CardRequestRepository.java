@@ -1,4 +1,4 @@
-package com.example.bankcards.repository;
+package com.example.bankcards.repository.card;
 
 import com.example.bankcards.entity.request.CardRequest;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -11,7 +11,7 @@ import com.example.bankcards.entity.card.CardFilter;
 import com.example.bankcards.entity.card.Transfer;
 import com.example.bankcards.entity.request.CardRequest;
 import com.example.bankcards.entity.user.User;
-import com.example.bankcards.service.CardRequestService;
+import com.example.bankcards.service.card.CardRequestService;
 import com.example.bankcards.service.card.CardService;
 import com.example.bankcards.service.user.UserService;
 import jakarta.validation.Valid;
@@ -89,11 +89,11 @@ public class PrivateCardController {
                                                @PathVariable Long cardId,
                                                @Valid @RequestBody TransferDto transferDto) {
         Transfer transfer = Transfer.builder()
-                .user(Long.parseLong(jwt.getSubject()))
-                .from(cardId)
-                .to(transferDto.getCardTo())
+                .user(userService.getUserById(Long.parseLong(jwt.getSubject())))
+                .from(cardService.findCardById(cardId))
+                .to(cardService.findCardById(transferDto.getCardTo()))
                 .amount(transferDto.getAmount()).build();
         cardService.makeTransfer(transfer);
-        return ResponseEntity.ok().body("Transfer successful");
+        return ResponseEntity.ok().body("Transfer successful!");
     }
 }

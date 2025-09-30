@@ -30,7 +30,7 @@ public class PrivateUserController {
     public ResponseEntity<UserDto> getUser(@AuthenticationPrincipal Jwt jwt) {
         Long userId = Long.parseLong(jwt.getSubject());
         return ResponseEntity.ok(userMapper.toDto(
-                userService.getUserForView(userId)));
+                userService.getUserById(userId)));
     }
 
     @PatchMapping

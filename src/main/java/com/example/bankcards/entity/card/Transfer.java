@@ -1,5 +1,6 @@
 package com.example.bankcards.entity.card;
 
+import com.example.bankcards.entity.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,8 +16,8 @@ import java.math.BigDecimal;
 @Setter
 
 public class Transfer {
-    private Long user;
-    private Long from;
-    private Long to;
+    private User user;
+    private Card from;
+    private Card to;
     private BigDecimal amount;
 }

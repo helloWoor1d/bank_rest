@@ -1,9 +1,10 @@
-package com.example.bankcards.service;
+package com.example.bankcards.service.card;
 
 import com.example.bankcards.entity.request.CardRequest;
 import com.example.bankcards.entity.request.CardRequestStatus;
-import com.example.bankcards.exception.AccessDeniedException;
-import com.example.bankcards.repository.CardRequestRepository;
+import com.example.bankcards.exception.BadOperationException;
+import com.example.bankcards.exception.UserBlockedException;
+import com.example.bankcards.repository.card.CardRequestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,10 @@ public class CardRequestService {
 
     public CardRequest createRequest(CardRequest cardRequest) {
         if (!cardRequest.getCard().getOwner().getId().equals(cardRequest.getRequester().getId())) {
-            throw new AccessDeniedException("Нельзя оставить запрос на карту, не принадлежащую вам");
+            throw new BadOperationException("Нельзя оставить запрос на карту, не принадлежащую вам");
+        }
+        if (cardRequest.getRequester().getBlocked()) {
+            throw new UserBlockedException("В настоящее время операция недоступна, дождитесь разблокировки аккаунта.");
         }
         cardRequest.setRequestDate(LocalDateTime.now());
         cardRequest.setStatus(CardRequestStatus.IN_PROGRESS);

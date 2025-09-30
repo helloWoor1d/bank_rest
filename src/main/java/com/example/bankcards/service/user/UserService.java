@@ -1,7 +1,8 @@
 package com.example.bankcards.service.user;
 
 import com.example.bankcards.entity.user.User;
-import com.example.bankcards.exception.AccessDeniedException;
+import com.example.bankcards.exception.BadOperationException;
+import com.example.bankcards.exception.UserBlockedException;
 import com.example.bankcards.repository.user.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
@@ -35,28 +36,32 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("User with email " + email + " not found"));
     }
 
-    @Transactional(readOnly = true)
-    public User getUserForView(Long userId) {
-        log.debug("Get user {} for view", userId);
-        User user = getUserById(userId);
-        if (user.getBlocked())
-            throw new AccessDeniedException("User is blocked");
-        return user;
+    public User getUserById(Long id) {
+        log.debug("Get user by id {}", id);
+        return userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User with id " + id + " not found"));
     }
 
     @Transactional(readOnly = true)
-    public User getUserForViewByAdmin(Long userId, Long adminId) {
+    public User getUserById(Long userId, Long adminId) {
         log.debug("Get user {} by admin {}", userId, adminId);
         return getUserById(userId);
     }
 
     public void deleteUser(Long userId) {
         log.info("Delete user {}", userId);
+        User user = getUserById(userId);
+        if (user.getBlocked()) {
+            throw new UserBlockedException("В настоящее время вы не можете удалить свой аккаунт, дождитесь разблокировки.");
+        }
         userRepository.deleteById(userId);
     }
 
     public User updateUser(User user) {
         User saved = getUserById(user.getId());
+        if (saved.getBlocked()) {
+            throw new UserBlockedException("В настоящее время операция недоступна, дождитесь разблокировки аккаунта.");
+        }
         if (user.getPassword() != null && !user.getPassword().isBlank()) {
             saved.setPassword(passwordEncoder.encode(user.getPassword()));
         } if (user.getEmail() != null && !user.getEmail().isBlank()) {
@@ -74,10 +79,10 @@ public class UserService {
 
     public User blockUser(Long userId, Long blockerId) {
         if (userId.equals(blockerId)) {
-            throw new AccessDeniedException("User cannot block itself");
+            throw new BadOperationException("User cannot block itself");
         }
         User user = getUserById(userId);
-        if (user.getBlocked()) throw new AccessDeniedException("User is already blocked");
+        if (user.getBlocked()) throw new BadOperationException("User is already blocked");
 
         log.info("Block user with id {} by admin {}", userId, blockerId);
         user.setBlocked(true);
@@ -86,25 +91,19 @@ public class UserService {
 
     public User unlockUser(Long userId, Long blockerId) {
         if (userId.equals(blockerId)) {
-            throw new AccessDeniedException("User cannot unlock itself");
+            throw new BadOperationException("User cannot unlock itself");
         }
         User user = getUserById(userId);
-        if (!user.getBlocked()) throw new AccessDeniedException("User is already unlocked");
+        if (!user.getBlocked()) throw new BadOperationException("User is already unlocked");
 
         log.info("Unblock user with id {} by admin {}", userId, blockerId);
         user.setBlocked(false);
         return userRepository.save(user);
     }
 
-    public User getUserById(Long id) {
-        log.debug("Get user by id {}", id);
-        return userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User with id " + id + " not found"));
-    }
-
     @Named("getUserReference")
     public User getUserReference(Long userId) {
-        log.debug("Get user reference {}", userId);
+        log.debug("Get user reference with id {}", userId);
         return entityManager.getReference(User.class, userId);
     }
 }
