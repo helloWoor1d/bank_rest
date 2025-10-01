@@ -28,6 +28,17 @@ public class SecurityClientConfig {
                 .scope(OidcScopes.PROFILE)
                 .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
                 .build();
-        return new InMemoryRegisteredClientRepository(client);
+
+        RegisteredClient openApiClient = RegisteredClient.withId(UUID.randomUUID().toString())
+                .clientId("openapi")
+                .clientSecret(passwordEncoder.encode("openapi-secret"))
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .redirectUri("http://localhost:9090/swagger-ui/oauth2-redirect.html")
+                .scope(OidcScopes.OPENID)
+                .scope(OidcScopes.PROFILE)
+                .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build()).build();
+
+        return new InMemoryRegisteredClientRepository(client,openApiClient);
     }
 }

@@ -9,12 +9,12 @@
 
 После запуска:
 
-- API: http://localhost:9090/api/v1
+- API: http://localhost:9090/actuator/health
 
 - Swagger UI: http://localhost:9090/swagger-ui.html
 
-- База данных (Postgres): localhost:5433
-    user: mira
-    password: password
-    db: bank-rest
+- БД (PostgreSQL): localhost:5433
+    - user: mira
+    - password: password
+    - db: bank-rest
 

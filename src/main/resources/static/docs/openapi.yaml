@@ -32,6 +32,8 @@ paths:
       description: Получение данных о пользователе админом
       tags:
         - "Admin: Пользователи"
+      security:
+        - oauth: [openid, profile]
       parameters:
         - name: userId
           in: path
@@ -78,6 +80,9 @@ paths:
             format: int64
             example: 1
 
+      security:
+        - auth: [openid, profile]
+
       responses:
         200:
           description: Информация успешно получена
@@ -121,6 +126,9 @@ paths:
             type: integer
             format: int64
             example: 1
+
+      security:
+        - auth: [openid, profile]
 
       responses:
         200:
@@ -186,8 +194,9 @@ paths:
       summary: Пользователь получает данные своего профиля
       tags:
         - "Private: Пользователи"
+
       security:
-        - auth: [openid]
+        - auth: [openid, profile]
 
       responses:
         200:
@@ -215,8 +224,9 @@ paths:
       summary: Изменения данных своего профиля
       tags:
         - "Private: Пользователи"
+
       security:
-        - auth: [openid]
+        - auth: [openid, profile]
 
       requestBody:
         required: true
@@ -263,7 +273,7 @@ paths:
       tags:
         - "Private: Пользователи"
       security:
-        - auth: [openid]
+        - auth: [openid, profile]
 
       responses:
         204:
@@ -291,6 +301,9 @@ paths:
       description: Создание карты админом
       tags:
         - "Admin: Карты"
+
+      security:
+        - auth: [openid, profile]
 
       requestBody:
         required: true
@@ -404,6 +417,9 @@ paths:
           description: id для удаления карты
           required: true
 
+      security:
+        - auth: [openid, profile]
+
       responses:
         204:
           description: Карта удалена
@@ -432,6 +448,9 @@ paths:
           description: id карты для активации
           required: true
 
+      security:
+        - auth: [openid, profile]
+
       responses:
         200:
           description: Карта активирована
@@ -457,6 +476,9 @@ paths:
           in: path
           description: id карты для деактивации
           required: true
+
+      security:
+        - auth: [openid, profile]
 
       responses:
         200:
@@ -506,6 +528,9 @@ paths:
             maximum: 100
             default: 10
 
+      security:
+        - auth: [openid, profile]
+
       responses:
         200:
           description: Список карт получен
@@ -554,6 +579,10 @@ paths:
           in: path
           description: id карты на которую создается запрос
           required: true
+
+      security:
+        - auth: [openid, profile]
+
       requestBody:
         content:
           application/json:
@@ -597,6 +626,10 @@ paths:
           in: path
           description: id карты с которой осуществляется перевод
           required: true
+
+      security:
+        - auth: [openid, profile]
+
       responses:
         200:
           description: Перевод выполнен успешно
@@ -637,7 +670,6 @@ components:
           scopes:
             openid: OpenID Connect scope
             profile: Доступ к профилю
-            email: Доступ к email
 
   schemas:
     UserRegisterRequest:

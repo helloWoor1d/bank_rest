@@ -33,3 +33,12 @@ spring:
 logging:
   level:
     com.example.bankcards.*: debug
+
+springdoc:
+  swagger-ui:
+    url: /docs/openapi.yaml
+    oauth:
+      client-id: openapi
+      client-secret: openapi-secret
+      scopes: openid, profile
+    oauth2-redirect-url: http://localhost:9090/swagger-ui/oauth2-redirect.html
