@@ -33,7 +33,8 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.defaultAuthenticationEntryPointFor(
                         new LoginUrlAuthenticationEntryPoint("/login"),
                         new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
-                ));
+                ))
+                .cors(Customizer.withDefaults());
         http.csrf(AbstractHttpConfigurer::disable);
         return http.build();
     }

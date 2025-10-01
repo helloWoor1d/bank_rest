@@ -24,6 +24,13 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
+    @ExceptionHandler(AccessDeniedException.class)
+    public ProblemDetail handleAccessDeniedException(AccessDeniedException e) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, e.getMessage());
+        problem.setTitle("Access Denied");
+        return problem;
+    }
+
     @ExceptionHandler(EntityNotFoundException.class)
     public ProblemDetail handleEntityNotFoundException(EntityNotFoundException e) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());

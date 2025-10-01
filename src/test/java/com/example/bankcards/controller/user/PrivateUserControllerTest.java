@@ -54,6 +54,8 @@ public class PrivateUserControllerTest {
 
     private User u1, u2;
 
+    private static final String BASE_URL = "/api/v1/users/me";
+
     @BeforeEach
     public void initializeUsers() {
         u1 = User.builder()
@@ -100,7 +102,7 @@ public class PrivateUserControllerTest {
 
     public MockHttpServletResponse performGetUser(JwtAuthenticationToken token) throws Exception {
         MvcResult result = mockMvc.perform(
-                get("/api/v1/users")
+                get(BASE_URL)
                         .with(authentication(token))
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -119,7 +121,7 @@ public class PrivateUserControllerTest {
                 .lastname("Updated").build();
 
         MockHttpServletResponse result = mockMvc.perform(
-                patch("/api/v1/users")
+                patch(BASE_URL)
                         .with(authentication(userToken))
                         .content(objectMapper.writeValueAsString(updateRequest))
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -135,7 +137,7 @@ public class PrivateUserControllerTest {
     @Test
     public void shouldDeleteUser() throws Exception {
         MockHttpServletResponse response = mockMvc.perform(
-                delete("/api/v1/users")
+                delete(BASE_URL)
                 .with(authentication(userToken)))
                 .andReturn().getResponse();
         assertThat(response.getStatus(), is(204));

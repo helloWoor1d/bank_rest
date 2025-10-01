@@ -6,6 +6,7 @@ import com.example.bankcards.exception.UserBlockedException;
 import com.example.bankcards.repository.user.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.Named;
@@ -23,10 +24,15 @@ public class UserService {
     private final EntityManager entityManager;
 
     public User createUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        User saved = userRepository.save(user);
-        log.info("Create user with id {}", saved.getId());
-        return saved;
+        try{
+            getUserByEmail(user.getEmail());
+        } catch (EntityNotFoundException ex) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            User saved = userRepository.save(user);
+            log.info("Create user with id {}", saved.getId());
+            return saved;
+        }
+        throw new ValidationException("User with email already exists");
     }
 
     @Transactional(readOnly = true)

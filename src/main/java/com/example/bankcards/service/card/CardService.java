@@ -4,6 +4,7 @@ import com.example.bankcards.entity.card.Card;
 import com.example.bankcards.entity.card.CardFilter;
 import com.example.bankcards.entity.card.CardStatus;
 import com.example.bankcards.entity.card.Transfer;
+import com.example.bankcards.exception.AccessDeniedException;
 import com.example.bankcards.exception.BadOperationException;
 import com.example.bankcards.exception.UserBlockedException;
 import com.example.bankcards.repository.card.CardRepository;
@@ -89,9 +90,17 @@ public class CardService {
         if (transfer.getFrom().getBalance().compareTo(transfer.getAmount()) < 0) {
             throw new BadOperationException("Недостаточно средств для перевода");
         }
+        Long cardFromOwnerId = transfer.getFrom().getOwner().getId();
+        Long cardToOwnerId = transfer.getTo().getOwner().getId();
+        if (!cardFromOwnerId.equals(transfer.getUser().getId()) ||
+                !cardToOwnerId.equals(transfer.getUser().getId())) {
+            throw new AccessDeniedException("Переводы можно осуществлять только между своими картами");
+        }
         log.debug("Transfer from {} to {} by {}", transfer.getFrom(), transfer.getTo(), transfer.getUser());
-        transfer.getFrom().setBalance(transfer.getFrom().getBalance().subtract(transfer.getAmount()));
-        transfer.getTo().setBalance(transfer.getTo().getBalance().add(transfer.getAmount()));
+        transfer.getFrom().setBalance(transfer.getFrom().getBalance()
+                        .subtract(transfer.getAmount()));
+        transfer.getTo().setBalance(transfer.getTo().getBalance()
+                        .add(transfer.getAmount()));
         cardRepository.save(transfer.getFrom());
         cardRepository.save(transfer.getTo());
     }

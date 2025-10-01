@@ -53,7 +53,7 @@ public class PrivateCardController {
 
     @GetMapping
     Page<CardViewForOwner> getCards(@AuthenticationPrincipal Jwt jwt,
-                                    @RequestParam(defaultValue = "1") @Min(0) @Max(100) Integer page,
+                                    @RequestParam(defaultValue = "0") @Min(0) @Max(100) Integer page,
                                     @RequestParam(defaultValue = "10") @Min(0) @Max(100) Integer size,
                                     @RequestParam(defaultValue = "ALL") String filter) {
         try {

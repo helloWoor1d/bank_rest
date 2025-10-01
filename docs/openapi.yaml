@@ -1,1 +1,834 @@
-# Здесь будет OpenAPI описание всех доступных эндпоинтов и моделей данных.
+openapi: '3.0.1'
+info:
+  title: Bank Rest API
+  version: '1.0'
+  description: Documentation Bank Rest API v1.0
+  contact:
+    name: mira
+
+servers:
+  - url: http://localhost:9090/api/v1
+    description: The base server url
+
+tags:
+  - name: "Public: Пользователи"
+    description: "Публичный API для работы с пользователями"
+
+  - name: "Private: Пользователи"
+    description: "Закрытый API для работы с пользователями"
+
+  - name: "Admin: Пользователи"
+    description: "Админский API для работы с пользователями"
+
+  - name: "Admin: Карты"
+    description: "Админский API для работы с картами"
+
+  - name: "Private: Карты"
+    description: "Пользовательский API для работы с картами"
+
+paths:
+  /admin/users/{userId}:
+    get:
+      description: Получение данных о пользователе админом
+      tags:
+        - "Admin: Пользователи"
+      parameters:
+        - name: userId
+          in: path
+          description: id пользователя, данные которого нужно получить
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+
+      responses:
+        200:
+          description: Информация успешно получена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+
+        401:
+          description: Не авторизован
+
+        403:
+          description: Доступ запрещен (не админ)
+
+        404:
+          description: Пользователь с таким id не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /admin/users/{userId}/block:
+    patch:
+      description: Блокировка аккаунта пользователя
+      tags:
+        - "Admin: Пользователи"
+      parameters:
+        - name: userId
+          in: path
+          description: id пользователя, которого нужно заблокировать
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+
+      responses:
+        200:
+          description: Информация успешно получена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+
+        401:
+          description: Не авторизован
+
+        403:
+          description: Доступ запрещен (не админ)
+
+        400:
+          description: Некорректный запрос (например, попытка заблокировать себя)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+        404:
+          description: Пользователь с таким id не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /admin/users/{userId}/unlock:
+    patch:
+      description: Разблокировка аккаунта пользователя
+      tags:
+        - "Admin: Пользователи"
+
+      parameters:
+        - name: userId
+          in: path
+          description: id пользователя, которого нужно заблокировать
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+
+      responses:
+        200:
+          description: Информация успешно получена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+
+        401:
+          description: Не авторизован
+
+        403:
+          description: Доступ запрещен (не админ)
+
+        400:
+          description: Некорректный запрос (например, попытка разблокирвоать себя)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+        404:
+          description: Пользователь с таким id не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /users:
+    post:
+      operationId: userRegister
+      summary: Регистрация пользователя
+      description: Создание нового пользователя. Email должен быть уникальным.
+      tags:
+        - "Public: Пользователи"
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegisterRequest'
+
+      responses:
+        201:
+          description: Пользователь успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+
+        400:
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /users/me:
+    get:
+      operationId: getCurrentUser
+      summary: Пользователь получает данные своего профиля
+      tags:
+        - "Private: Пользователи"
+      security:
+        - auth: [openid]
+
+      responses:
+        200:
+          description: Данные успешно получены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+
+        401:
+          description: Не авторизован
+
+        403:
+          description: Доступ запрещен
+
+        404:
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+    patch:
+      operationId: updateCurrentUser
+      summary: Изменения данных своего профиля
+      tags:
+        - "Private: Пользователи"
+      security:
+        - auth: [openid]
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+
+      responses:
+        200:
+          description: Данные изменены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDto'
+
+        400:
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+        401:
+          description: Не авторизован
+
+        403:
+          description: Доступ запрещен/ Пользователь заблокирован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+        404:
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+    delete:
+      operationId: deleteCurrentUser
+      summary: Удаление своего профиля
+      tags:
+        - "Private: Пользователи"
+      security:
+        - auth: [openid]
+
+      responses:
+        204:
+          description: Пользователь удален
+
+        401:
+          description: Не авторизован
+
+        403:
+          description: Доступ запрещен/ Пользователь заблокирован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+        404:
+          description: Пользователь не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /admin/cards:
+    post:
+      description: Создание карты админом
+      tags:
+        - "Admin: Карты"
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCardDto'
+
+      responses:
+        200:
+          description: Карта успешно добавлена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardViewForAdmin'
+
+        401:
+          description: Не авторизован
+
+        403:
+          description: Доступ запрещен
+
+        400:
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+    get:
+      description: Админ постранично получает список карт с фильтром по статусу
+      tags:
+        - "Admin: Карты"
+
+      security:
+        - auth: [openid, profile]
+
+      parameters:
+        - name: filter
+          in: query
+          description: Фильтр для выборки карт (ALL, ACTIVE, BLOCKED, EXPIRED)
+          required: false
+          schema:
+            type: string
+            default: ALL
+        - name: page
+          in: query
+          description: Номер страницы
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 100
+            default: 0
+        - name: size
+          in: query
+          description: Размер страницы
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 100
+            default: 10
+
+      responses:
+        200:
+          description: Список карт получен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CardViewForAdmin'
+                  page:
+                    type: integer
+                    example: 0
+                  size:
+                    type: integer
+                    example: 10
+                  totalElements:
+                    type: integer
+                    example: 50
+                  totalPages:
+                    type: integer
+                    example: 5
+
+        401:
+          description: Не авторизован
+
+        403:
+          description: Доступ запрещен
+
+        400:
+          description: Ошибка валидации (неизвестный filter)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /admin/cards/{cardId}:
+    delete:
+      description: Удаление карты админом
+      tags:
+        - "Admin: Карты"
+      parameters:
+        - name: cardId
+          in: path
+          description: id для удаления карты
+          required: true
+
+      responses:
+        204:
+          description: Карта удалена
+
+        401:
+          description: Не авторизован
+
+        403:
+          description: Доступ запрещен
+
+        404:
+          description: Карта не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /admin/cards/{cardId}/activate:
+    patch:
+      description: Активация карты админом
+      tags:
+        - "Admin: Карты"
+      parameters:
+        - name: cardId
+          in: path
+          description: id карты для активации
+          required: true
+
+      responses:
+        200:
+          description: Карта активирована
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardViewForAdmin'
+
+        404:
+          description: Карта не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /admin/cards/{cardId}/deactivate:
+    patch:
+      description: Деактивация карты админом
+      tags:
+        - "Admin: Карты"
+      parameters:
+        - name: cardId
+          in: path
+          description: id карты для деактивации
+          required: true
+
+      responses:
+        200:
+          description: Карта деактивирована
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardViewForAdmin'
+
+        404:
+          description: Карта не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /cards:
+    get:
+      summary: Получить свои карты
+      description: Пользователь постранично получает список своих карт, есть фильтрация по статусу
+      tags:
+        - "Private: Карты"
+      parameters:
+        - name: filter
+          in: query
+          description: Фильтр для выборки карт (ALL, ACTIVE, BLOCKED, EXPIRED)
+          required: false
+          schema:
+            type: string
+            default: ALL
+        - name: page
+          in: query
+          description: Номер страницы
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 100
+            default: 0
+        - name: size
+          in: query
+          description: Размер страницы
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 100
+            default: 10
+
+      responses:
+        200:
+          description: Список карт получен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CardViewForAdmin'
+                  page:
+                    type: integer
+                    example: 0
+                  size:
+                    type: integer
+                    example: 10
+                  totalElements:
+                    type: integer
+                    example: 50
+                  totalPages:
+                    type: integer
+                    example: 5
+
+        401:
+          description: Не авторизован
+
+        403:
+          description: Доступ запрещен
+
+        400:
+          description: Ошибка валидации (например неизвестный filter)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /cards/{cardId}/requests:
+    post:
+      description: Создание запроса на блокировку карты
+      tags:
+        - "Private: Карты"
+      parameters:
+        - name: cardId
+          in: path
+          description: id карты на которую создается запрос
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCardRequestDto'
+
+      responses:
+        201:
+          description: Запрос успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardRequestFullDto'
+        401:
+          description: Не авторизован
+
+        403:
+          description: Доступ запрещен
+
+        404:
+          description: Ресурс не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+        400:
+          description: Нельзя оставить запрос на карту, не принадлежащую вам
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /cards/{cardId}/transfer:
+    post:
+      description: Перевод с карты на карту
+      tags:
+        - "Private: Карты"
+      parameters:
+        - name: cardId
+          in: path
+          description: id карты с которой осуществляется перевод
+          required: true
+      responses:
+        200:
+          description: Перевод выполнен успешно
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Transfer successful!"
+
+        401:
+          description: Не авторизован
+
+        403:
+          description: Доступ запрещен
+
+        404:
+          description: Ресурс не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+        400:
+          description: Ошибка при переводе средств (например, недостатчоно денег на карте)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+components:
+  securitySchemes:
+    auth:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: http://localhost:9090/oauth2/authorize
+          tokenUrl: http://localhost:9090/oauth2/token
+          scopes:
+            openid: OpenID Connect scope
+            profile: Доступ к профилю
+            email: Доступ к email
+
+  schemas:
+    UserRegisterRequest:
+      type: object
+      required:
+      - email
+      - password
+      properties:
+        email:
+          type: string
+          format: email
+          uniqueItems: true
+          example: user@email.ru
+        password:
+          type: string
+          minLength: 8
+          example: password
+        role:
+          type: string
+          example: USER
+          enum:
+            - [USER, ADMIN]
+          default: USER
+
+    UserDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        email:
+          type: string
+          format: email
+          uniqueItems: true
+          example: user@email.ru
+        firstname:
+          type: string
+          example: "Иван"
+        lastname:
+          type: string
+          example: "Иванов"
+        patronymic:
+          type: string
+          example: "Иванович"
+        role:
+          type: string
+          enum:
+            - [USER, ADMIN]
+          example: USER
+        blocked:
+          type: boolean
+          example: false
+
+    UserForCard:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          uniqueItems: true
+        fullName:
+          type: string
+          example: "Иванов Иван"
+
+    UserUpdateRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          uniqueItems: true
+          example: password
+        password:
+          type: string
+          example: password
+        firstname:
+          type: string
+          example: "Иван"
+        lastname:
+          type: string
+          example: "Иванов"
+        patronymic:
+          type: string
+          example: "Иванович"
+
+    CardViewForAdmin:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        number:
+          type: string
+          example: "**** **** **** 1234"
+        expiryDate:
+          type: object
+          example: "06/28"
+        owner:
+          $ref: '#/components/schemas/UserForCard'
+        status:
+          type: string
+          example: ACTIVE
+          enum:
+            - [ACTIVE, BLOCKED, EXPIRED]
+
+    CardViewForOwner:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        number:
+          type: string
+          example: "**** **** **** 3232"
+        expiryDate:
+          type: string
+          example: "06/28"
+        status:
+          type: string
+          example: ACTIVE
+          enum:
+            - [ ACTIVE, BLOCKED, EXPIRED ]
+        balance:
+          type: number
+          example: 10.0
+
+    CreateCardDto:
+      type: object
+      properties:
+        ownerId:
+          type: integer
+          format: int64
+          nullable: false
+
+    TransferDto:
+      type: object
+      properties:
+        cardTo:
+          type: integer
+          format: int64
+          example: 1
+        amount:
+          type: number
+          example: 10.0
+
+    ProblemDetail:
+      type: object
+      properties:
+        type:
+          type: string
+          example: "about:blank"
+        title:
+          type: string
+          example: "Bad Request"
+        status:
+          type: string
+          example: 400
+        detail:
+          type: string
+          example: "User with email already exists"
+        instance:
+          type: string
+          example: "/api/v1/users"
+
+    CreateCardRequestDto:
+      type: object
+      properties:
+        requestType:
+          type: string
+          nullable: false
+          enum:
+            - [BLOCK_CARD, CREATE_CARD]
+          example: BLOCK_CARD
+
+    CardRequestFullDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        requester:
+          $ref: '#/components/schemas/UserForCard'
+        card:
+          $ref: '#/components/schemas/CardViewForAdmin'
+        requestType:
+          enum:
+            - [BLOCK_CARD, CREATE_CARD]
+        status:
+          enum:
+            - [IN_PROGRESS, COMPLETED, REJECTED]
+        requestDate:
+          type: string
